@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sorteador | Resultado do Sorteio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --yellow:#ffd23f;
+  --orange:#ff7a1a;
+  --pink:#ff4f9a;
+  --purple:#7b4dff;
+  --blue:#22b8ff;
+  --green:#2ed67a;
+  --dark:#3a1c5b;
+  --soft:#fff6e0;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{min-height:100%;}
+body{
+  font-family:'Nunito',sans-serif;
+  color:var(--dark);
+  background:linear-gradient(135deg,#ff9a3c,#ff4f9a,#7b4dff,#22b8ff,#2ed67a,#ffd23f);
+  background-size:500% 500%;
+  animation:fundo 18s ease infinite;
+  overflow-x:hidden;
+}
+@keyframes fundo{0%{background-position:0% 50%;}50%{background-position:100% 50%;}100%{background-position:0% 50%;}}
+
+#bg{position:fixed;inset:0;width:100%;height:100%;z-index:3;pointer-events:none;}
+
+/* BALÕES */
+.balao{
+  position:fixed;bottom:-160px;z-index:1;pointer-events:none;
+  width:var(--s);height:calc(var(--s) * 1.22);
+  background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.75) 0 10%,var(--c) 38%);
+  border-radius:50% 50% 50% 50% / 58% 58% 42% 42%;
+  box-shadow:inset -8px -10px 0 rgba(0,0,0,.08);
+  animation:subir var(--d) linear infinite, balanco 3.5s ease-in-out infinite alternate;
+  animation-delay:var(--dl),0s;
+  opacity:.9;
+}
+.balao::after{
+  content:'';position:absolute;left:50%;top:100%;width:2px;height:70px;
+  background:rgba(255,255,255,.7);transform:translateX(-50%);
+}
+@keyframes subir{from{bottom:-200px;}to{bottom:112vh;}}
+@keyframes balanco{from{margin-left:-24px;}to{margin-left:24px;}}
+
+.wrap{position:relative;z-index:2;max-width:1000px;margin:0 auto;padding:26px 16px 50px;}
+
+/* CABEÇALHO */
+header{text-align:center;margin-bottom:6px;}
+.logo{
+  font-family:'Fredoka',sans-serif;font-weight:700;
+  font-size:clamp(38px,8vw,72px);letter-spacing:2px;line-height:1.1;
+  display:flex;justify-content:center;flex-wrap:wrap;
+}
+.logo span{
+  display:inline-block;color:#fff;
+  text-shadow:0 5px 0 rgba(58,28,91,.35),0 0 0 #000;
+  -webkit-text-stroke:2px rgba(58,28,91,.25);
+  animation:pula 1.4s ease-in-out infinite;
+  animation-delay:calc(var(--i) * .1s);
+}
+.logo span:nth-child(3n+1){color:var(--yellow);}
+.logo span:nth-child(3n+2){color:#fff;}
+.logo span:nth-child(3n){color:#9ff0ff;}
+@keyframes pula{0%,100%{transform:translateY(0) rotate(-3deg);}50%{transform:translateY(-14px) rotate(4deg);}}
+.tagline{
+  display:inline-block;margin-top:6px;padding:6px 18px;border-radius:30px;
+  background:rgba(255,255,255,.25);color:#fff;font-weight:900;letter-spacing:3px;
+  font-size:13px;text-transform:uppercase;
+}
+
+h1.titulo{
+  text-align:center;font-family:'Fredoka',sans-serif;font-weight:700;
+  font-size:clamp(26px,5vw,44px);margin:20px 0 16px;color:#fff;
+  text-shadow:0 4px 0 rgba(58,28,91,.3);
+  animation:balancar 3s ease-in-out infinite;
+}
+h1.titulo span{color:var(--yellow);}
+@keyframes balancar{0%,100%{transform:rotate(-1.5deg);}50%{transform:rotate(1.5deg);}}
+
+.banner-sim{
+  display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;
+  margin:0 auto 22px;max-width:700px;padding:11px 20px;
+  background:var(--yellow);border:3px dashed var(--dark);border-radius:16px;
+  color:var(--dark);font-weight:900;font-size:14px;text-align:center;
+  transform:rotate(-1.2deg);box-shadow:0 6px 0 rgba(58,28,91,.25);
+}
+.banner-sim b{color:#d6006b;}
+
+/* CARD */
+.card{
+  background:#fff;border-radius:36px;padding:28px;
+  border:5px solid var(--dark);
+  box-shadow:0 12px 0 rgba(58,28,91,.35),0 30px 60px rgba(0,0,0,.2);
+  animation:entrada .8s cubic-bezier(.2,1.5,.4,1);
+}
+@keyframes entrada{from{transform:translateY(80px) scale(.85);opacity:0;}to{transform:none;opacity:1;}}
+
+/* CONFIG */
+.config{
+  background:var(--soft);border:3px solid #ffd98a;border-radius:24px;
+  padding:18px;margin-bottom:26px;
+}
+.config h3{font-family:'Fredoka',sans-serif;font-size:20px;color:var(--orange);margin-bottom:14px;}
+.campos{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.campo label{display:block;font-size:13px;font-weight:900;color:var(--dark);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;}
+.campo input{
+  width:100%;padding:12px 14px;border-radius:16px;
+  background:#fff;border:3px solid var(--dark);
+  color:var(--dark);font-size:20px;font-family:'Fredoka',sans-serif;font-weight:600;outline:none;transition:.2s;
+}
+.campo input:focus{border-color:var(--pink);transform:scale(1.04);box-shadow:0 6px 0 rgba(255,79,154,.35);}
+.msg{min-height:20px;margin-top:10px;font-size:14px;font-weight:800;color:#e0145f;}
+
+button{
+  font-family:'Fredoka',sans-serif;font-weight:700;font-size:18px;
+  border:3px solid var(--dark);cursor:pointer;border-radius:20px;padding:14px 26px;
+  transition:transform .15s,box-shadow .15s;
+  box-shadow:0 6px 0 var(--dark);
+}
+button:hover:not(:disabled){transform:translateY(-4px) rotate(-1deg);box-shadow:0 10px 0 var(--dark);}
+button:active:not(:disabled){transform:translateY(4px);box-shadow:0 2px 0 var(--dark);}
+button:disabled{opacity:.5;cursor:not-allowed;}
+.btn-config{width:100%;margin-top:14px;background:var(--blue);color:#fff;}
+
+/* VISOR / BOLA */
+.stage{display:flex;flex-direction:column;align-items:center;margin:10px 0 6px;}
+.ring-box{position:relative;width:min(310px,80vw);aspect-ratio:1;}
+.ring-box svg{width:100%;height:100%;transform:rotate(-90deg);position:relative;z-index:1;}
+.ring-bg{fill:none;stroke:#f1e6ff;stroke-width:12;}
+.ring-fg{
+  fill:none;stroke:url(#grad);stroke-width:12;stroke-linecap:round;
+  stroke-dasharray:754;stroke-dashoffset:754;
+}
+.ring-spin{
+  position:absolute;inset:-14px;border-radius:50%;
+  border:5px dotted var(--pink);
+  animation:spin 12s linear infinite;
+}
+.ring-spin.fast{animation-duration:1.2s;border-color:var(--orange);}
+@keyframes spin{to{transform:rotate(360deg);}}
+.ball{
+  position:absolute;inset:26px;border-radius:50%;z-index:0;
+  background:radial-gradient(circle at 30% 25%,#fff 0 18%,#fff3c4 45%,#ffd23f 100%);
+  border:5px solid var(--dark);
+  box-shadow:inset -14px -16px 0 rgba(255,122,26,.25),0 12px 0 rgba(58,28,91,.25);
+  animation:flutuar 3s ease-in-out infinite;
+}
+.ball.shake{animation:tremer .22s linear infinite;}
+@keyframes flutuar{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+@keyframes tremer{
+  0%{transform:translate(0,0) rotate(0);}
+  25%{transform:translate(6px,-5px) rotate(4deg);}
+  50%{transform:translate(-5px,5px) rotate(-4deg);}
+  75%{transform:translate(-6px,-4px) rotate(3deg);}
+  100%{transform:translate(0,0) rotate(0);}
+}
+.display{
+  position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  pointer-events:none;
+}
+.display .label{font-size:13px;font-weight:900;letter-spacing:2px;color:var(--orange);text-transform:uppercase;}
+.numero{
+  font-family:'Fredoka',sans-serif;font-weight:700;
+  font-size:clamp(70px,18vw,118px);line-height:1;
+  color:var(--purple);text-shadow:0 6px 0 rgba(58,28,91,.2);
+}
+.numero.tick{animation:tick .12s ease;}
+.numero.final{color:var(--pink);animation:final .9s cubic-bezier(.2,1.8,.4,1);}
+@keyframes tick{0%{transform:scale(.8);}100%{transform:scale(1);}}
+@keyframes final{0%{transform:scale(.3) rotate(-25deg);}60%{transform:scale(1.35) rotate(8deg);}100%{transform:scale(1) rotate(0);}}
+.timer{font-family:'Fredoka',sans-serif;font-size:18px;font-weight:600;color:var(--dark);height:24px;margin-top:2px;}
+.status{
+  margin-top:20px;font-family:'Fredoka',sans-serif;font-size:22px;font-weight:600;
+  color:var(--dark);min-height:30px;text-align:center;
+}
+.status.on{color:var(--pink);animation:pulsa .5s ease-in-out infinite alternate;}
+@keyframes pulsa{from{transform:scale(1);}to{transform:scale(1.12);}}
+
+/* BOTÕES */
+.botoes{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin:26px 0;}
+.sortear{
+  background:linear-gradient(180deg,#ffb02e,var(--orange));color:#fff;
+  padding:18px 40px;font-size:22px;
+  animation:pulsarBtn 1.2s ease-in-out infinite;
+}
+.sortear:disabled{animation:none;}
+@keyframes pulsarBtn{0%,100%{transform:scale(1);}50%{transform:scale(1.07);}}
+.reiniciar{background:var(--purple);color:#fff;}
+.som{background:var(--green);color:#fff;}
+.som.off{background:#c9c2d6;color:#6c5b88;}
+
+/* PROGRESSO */
+.contador{text-align:center;font-weight:900;font-size:16px;}
+.contador strong{font-family:'Fredoka',sans-serif;color:var(--pink);font-size:28px;}
+.progresso{height:22px;background:#f1e6ff;border:3px solid var(--dark);border-radius:20px;margin-top:10px;overflow:hidden;}
+.barra{
+  height:100%;width:0;transition:width .6s cubic-bezier(.2,1.4,.4,1);
+  background:repeating-linear-gradient(-45deg,var(--pink) 0 14px,var(--orange) 14px 28px);
+  background-size:40px 40px;
+  animation:listras 1s linear infinite;
+}
+@keyframes listras{to{background-position:40px 0;}}
+
+/* HISTÓRICO */
+.sub{
+  text-align:center;font-family:'Fredoka',sans-serif;font-size:24px;font-weight:700;
+  margin:32px 0 14px;color:var(--purple);
+}
+.historico{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;min-height:40px;}
+.chip{
+  font-family:'Fredoka',sans-serif;font-size:18px;font-weight:600;padding:8px 18px;border-radius:30px;
+  border:3px solid var(--dark);color:#fff;background:var(--purple);
+  box-shadow:0 4px 0 var(--dark);
+  animation:pop .5s cubic-bezier(.2,1.8,.4,1);
+}
+.chip:nth-child(5n+1){background:var(--pink);}
+.chip:nth-child(5n+2){background:var(--blue);}
+.chip:nth-child(5n+3){background:var(--green);}
+.chip:nth-child(5n+4){background:var(--orange);}
+.chip:nth-child(5n+5){background:var(--purple);}
+.chip b{margin-right:6px;color:var(--yellow);}
+.chip small{font-size:11px;margin-left:6px;background:#fff;color:var(--dark);padding:2px 8px;border-radius:20px;text-transform:uppercase;font-family:'Nunito',sans-serif;font-weight:900;}
+.vazio{color:#9b86b8;font-weight:800;}
+@keyframes pop{from{transform:scale(0) rotate(-20deg);}to{transform:scale(1) rotate(0);}}
+
+/* GRADE */
+.grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(50px,1fr));gap:10px;}
+.num-item{
+  aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+  border-radius:50%;font-family:'Fredoka',sans-serif;font-size:17px;font-weight:600;
+  background:#fff;border:3px solid #e6dcf5;color:#a897c4;
+  transition:transform .2s,background .2s;
+}
+.num-item.scan{background:var(--yellow);border-color:var(--dark);color:var(--dark);transform:scale(1.25);z-index:2;box-shadow:0 5px 0 rgba(58,28,91,.3);}
+.num-item.sorteado{
+  border-color:var(--dark);color:#fff;
+  box-shadow:0 4px 0 var(--dark);
+  animation:popBola .7s cubic-bezier(.2,1.8,.4,1);
+}
+.num-item.sorteado:nth-child(5n+1){background:var(--pink);}
+.num-item.sorteado:nth-child(5n+2){background:var(--blue);}
+.num-item.sorteado:nth-child(5n+3){background:var(--green);}
+.num-item.sorteado:nth-child(5n+4){background:var(--orange);}
+.num-item.sorteado:nth-child(5n+5){background:var(--purple);}
+@keyframes popBola{0%{transform:scale(.3) rotate(-90deg);}60%{transform:scale(1.4) rotate(15deg);}100%{transform:scale(1) rotate(0);}}
+.legenda{text-align:center;font-weight:800;font-size:14px;margin-top:20px;color:#8a76ab;}
+.legenda i{display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--pink);border:2px solid var(--dark);margin-right:4px;vertical-align:-2px;}
+
+.selo{
+  text-align:center;margin:22px auto 0;max-width:600px;font-size:13px;font-weight:800;color:#8a76ab;
+}
+.selo span{color:var(--pink);}
+footer{text-align:center;color:#fff;font-weight:900;font-size:13px;letter-spacing:1px;padding:22px 10px 0;text-shadow:0 2px 0 rgba(58,28,91,.35);}
+
+@media(max-width:640px){
+  .card{padding:16px;border-radius:28px;}
+  .campos{grid-template-columns:1fr;}
+  button{width:100%;}
+  .grade{grid-template-columns:repeat(auto-fill,minmax(42px,1fr));gap:7px;}
+  .num-item{font-size:14px;}
+}
+@media (prefers-reduced-motion:reduce){
+  .balao,.logo span,h1.titulo,.sortear,.ball{animation:none;}
+}
+</style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+
+<div class="wrap">
+
+  <header>
+    <div class="logo" id="logo">
+      <span style="--i:0">S</span><span style="--i:1">O</span><span style="--i:2">R</span><span style="--i:3">T</span><span style="--i:4">E</span><span style="--i:5">A</span><span style="--i:6">D</span><span style="--i:7">O</span><span style="--i:8">R</span>
+    </div>
+    <div class="tagline">🎉 Hora do sorteio! 🎉</div>
+  </header>
+
+  <h1 class="titulo">Resultado do <span>Sorteio!</span></h1>
+
+  <main class="card">
+
+    <section class="config">
+      <h3>⚙️ Configurar sorteio</h3>
+      <div class="campos">
+        <div class="campo">
+          <label for="inicio">Número inicial</label>
+          <input type="number" id="inicio" value="1">
+        </div>
+        <div class="campo">
+          <label for="fim">Número final</label>
+          <input type="number" id="fim" value="100">
+        </div>
+        <div class="campo">
+          <label for="quantidade">Qtd. de sorteios</label>
+          <input type="number" id="quantidade" value="10" min="1">
+        </div>
+      </div>
+      <div class="msg" id="msg"></div>
+      <button class="btn-config" id="btnConfig">✔ Aplicar configuração</button>
+    </section>
+
+    <section class="stage">
+      <div class="ring-box">
+        <svg viewBox="0 0 260 260">
+          <defs>
+            <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#ff4f9a"/>
+              <stop offset="35%" stop-color="#ff7a1a"/>
+              <stop offset="65%" stop-color="#2ed67a"/>
+              <stop offset="100%" stop-color="#22b8ff"/>
+            </linearGradient>
+          </defs>
+          <circle class="ring-bg" cx="130" cy="130" r="120"/>
+          <circle class="ring-fg" id="ringFg" cx="130" cy="130" r="120"/>
+        </svg>
+        <div class="ring-spin" id="ringSpin"></div>
+        <div class="ball" id="ball"></div>
+        <div class="display">
+          <div class="label">Número sorteado</div>
+          <div class="numero" id="resultado">--</div>
+          <div class="timer" id="timer"></div>
+        </div>
+      </div>
+      <div class="status" id="status">Aguardando sorteio</div>
+    </section>
+
+    <div class="botoes">
+      <button class="sortear" id="btnSortear">🎲 Realizar sorteio</button>
+      <button class="reiniciar" id="btnReiniciar">↻ Reiniciar</button>
+      <button class="som" id="btnSom">🔊 Som: ligado</button>
+    </div>
+
+    <div class="contador">
+      Sorteados: <strong id="contador">0</strong> / <strong id="total">10</strong>
+      <div class="progresso"><div class="barra" id="barra"></div></div>
+    </div>
+
+    <h2 class="sub">🏆 Ordem de saída</h2>
+    <div class="historico" id="historico"><span class="vazio">Nenhum número sorteado ainda</span></div>
+
+    <h2 class="sub">🎱 Números do sorteio</h2>
+    <div class="grade" id="grade"></div>
+
+    <div class="legenda"><i></i> Número sorteado &nbsp;|&nbsp; Números ainda disponíveis em branco</div>
+
+    <div class="selo">Os número são geradores criptográfico do navegador</div>
+  </main>
+
+  <footer>Desenvolvido ABSDEV 2026 · Sistema de sorteios</footer>
+</div>
+
+<script>
+(() => {
+  const DURACAO = 5000; // 5 segundos de animação
+  const CIRC = 754;     // circunferência do anel (2πr, r=120)
+  const FIXO = 18;      // SIMULAÇÃO: 1º número pré-definido (exibido no aviso da tela)
+
+  const $ = id => document.getElementById(id);
+  const el = {
+    inicio:$('inicio'), fim:$('fim'), qtd:$('quantidade'), msg:$('msg'),
+    resultado:$('resultado'), timer:$('timer'), status:$('status'),
+    ring:$('ringFg'), spin:$('ringSpin'), ball:$('ball'),
+    btnSortear:$('btnSortear'), btnReiniciar:$('btnReiniciar'), btnConfig:$('btnConfig'),
+    contador:$('contador'), total:$('total'), barra:$('barra'),
+    historico:$('historico'), grade:$('grade')
+  };
+
+  let pool = [], sorteados = [], totalSorteios = 10, ocupado = false;
+
+  /* Aleatório criptográfico, sem viés (rejection sampling) */
+  function rand(n){
+    const a = new Uint32Array(1);
+    const max = Math.floor(4294967296 / n) * n;
+    let x;
+    do { crypto.getRandomValues(a); x = a[0]; } while (x >= max);
+    return x % n;
+  }
+
+  /* ---------- ÁUDIO (sintetizado pelo navegador, sem arquivos externos) ---------- */
+  const audio = (() => {
+    let ctx = null, master = null, ligado = true;
+
+    function init(){
+      if (!ctx){
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return false;
+        ctx = new AC();
+        master = ctx.createGain();
+        master.gain.value = ligado ? 0.8 : 0;
+        const comp = ctx.createDynamicsCompressor();
+        master.connect(comp);
+        comp.connect(ctx.destination);
+      }
+      if (ctx.state === 'suspended') ctx.resume();
+      return true;
+    }
+
+    function setLigado(v){
+      ligado = v;
+      if (master) master.gain.setTargetAtTime(v ? 0.8 : 0, ctx.currentTime, 0.03);
+    }
+
+    function thump(t, vol){
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(110, t);
+      o.frequency.exponentialRampToValueAtTime(38, t + 0.14);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.7 * vol, t + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.2);
+      o.connect(g); g.connect(master);
+      o.start(t); o.stop(t + 0.25);
+    }
+
+    /* Suspense: drone grave + subida de tom + tremolo acelerando + batimentos que aceleram */
+    function suspense(dur){
+      if (!init()) return;
+      const t0 = ctx.currentTime + 0.02;
+      const end = t0 + dur - 0.3; // últimos 0,3s em silêncio (pausa dramática)
+
+      const dg = ctx.createGain();
+      dg.gain.setValueAtTime(0, t0);
+      dg.gain.linearRampToValueAtTime(0.2, t0 + 1.2);
+      dg.gain.linearRampToValueAtTime(0.3, end - 0.2);
+      dg.gain.linearRampToValueAtTime(0, end);
+      const lp = ctx.createBiquadFilter();
+      lp.type = 'lowpass'; lp.Q.value = 6;
+      lp.frequency.setValueAtTime(180, t0);
+      lp.frequency.exponentialRampToValueAtTime(2200, end);
+      [55, 55.8, 82.4].forEach(f => {
+        const o = ctx.createOscillator();
+        o.type = 'sawtooth'; o.frequency.value = f;
+        o.connect(lp); o.start(t0); o.stop(end + 0.05);
+      });
+      lp.connect(dg); dg.connect(master);
+
+      const rg = ctx.createGain();
+      rg.gain.setValueAtTime(0, t0);
+      rg.gain.linearRampToValueAtTime(0.1, end - 0.3);
+      rg.gain.linearRampToValueAtTime(0, end);
+      const ro = ctx.createOscillator();
+      ro.type = 'triangle';
+      ro.frequency.setValueAtTime(220, t0);
+      ro.frequency.exponentialRampToValueAtTime(1760, end);
+      const lfo = ctx.createOscillator();
+      lfo.frequency.setValueAtTime(4, t0);
+      lfo.frequency.exponentialRampToValueAtTime(22, end);
+      const lg = ctx.createGain();
+      lg.gain.setValueAtTime(0, t0);
+      lg.gain.linearRampToValueAtTime(0.04, end - 0.3);
+      lfo.connect(lg); lg.connect(rg.gain);
+      ro.connect(rg); rg.connect(master);
+      ro.start(t0); ro.stop(end + 0.05);
+      lfo.start(t0); lfo.stop(end + 0.05);
+
+      let t = t0, gap = 0.8;
+      while (t < end - 0.25){
+        thump(t, 0.9);
+        thump(t + 0.17, 0.6);
+        t += gap;
+        gap = Math.max(0.28, gap * 0.86);
+      }
+    }
+
+    /* clique curto a cada troca de número */
+    function tick(){
+      if (!ctx || !ligado) return;
+      const t = ctx.currentTime;
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = 'square';
+      o.frequency.setValueAtTime(1500, t);
+      o.frequency.exponentialRampToValueAtTime(700, t + 0.05);
+      g.gain.setValueAtTime(0.06, t);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.06);
+      o.connect(g); g.connect(master);
+      o.start(t); o.stop(t + 0.07);
+    }
+
+    /* revelação: impacto grave + ruído + acorde brilhante */
+    function reveal(){
+      if (!init()) return;
+      const t = ctx.currentTime + 0.01;
+
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(130, t);
+      o.frequency.exponentialRampToValueAtTime(30, t + 0.9);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.9, t + 0.015);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 1.3);
+      o.connect(g); g.connect(master);
+      o.start(t); o.stop(t + 1.4);
+
+      const len = Math.floor(ctx.sampleRate * 0.7);
+      const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+      const ns = ctx.createBufferSource(); ns.buffer = buf;
+      const nf = ctx.createBiquadFilter(); nf.type = 'lowpass';
+      nf.frequency.setValueAtTime(5000, t);
+      nf.frequency.exponentialRampToValueAtTime(200, t + 0.7);
+      const ng = ctx.createGain();
+      ng.gain.setValueAtTime(0.5, t);
+      ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.7);
+      ns.connect(nf); nf.connect(ng); ng.connect(master);
+      ns.start(t);
+
+      [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
+        const oc = ctx.createOscillator(), gc = ctx.createGain();
+        const ti = t + 0.05 + i * 0.07;
+        oc.type = 'triangle'; oc.frequency.value = f;
+        gc.gain.setValueAtTime(0.0001, ti);
+        gc.gain.exponentialRampToValueAtTime(0.13, ti + 0.02);
+        gc.gain.exponentialRampToValueAtTime(0.0001, ti + 1.8);
+        oc.connect(gc); gc.connect(master);
+        oc.start(ti); oc.stop(ti + 1.9);
+      });
+    }
+
+    /* SURPRESA: bumbo + prato + apito de festa + fanfarra "tan-tan-tan-tããã" + brilhos */
+    function surpresa(){
+      if (!init()) return;
+      const t = ctx.currentTime + 0.01;
+
+      // bumbo
+      const k = ctx.createOscillator(), kg = ctx.createGain();
+      k.type = 'sine';
+      k.frequency.setValueAtTime(150, t);
+      k.frequency.exponentialRampToValueAtTime(40, t + 0.25);
+      kg.gain.setValueAtTime(0.9, t);
+      kg.gain.exponentialRampToValueAtTime(0.0001, t + 0.4);
+      k.connect(kg); kg.connect(master);
+      k.start(t); k.stop(t + 0.45);
+
+      // prato (crash)
+      const len = Math.floor(ctx.sampleRate * 1.3);
+      const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+      const ns = ctx.createBufferSource(); ns.buffer = buf;
+      const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 5500;
+      const ng = ctx.createGain();
+      ng.gain.setValueAtTime(0.35, t);
+      ng.gain.exponentialRampToValueAtTime(0.0001, t + 1.3);
+      ns.connect(hp); hp.connect(ng); ng.connect(master);
+      ns.start(t);
+
+      // apito de festa subindo
+      const w = ctx.createOscillator(), wg = ctx.createGain();
+      w.type = 'sine';
+      w.frequency.setValueAtTime(500, t + 0.05);
+      w.frequency.exponentialRampToValueAtTime(2200, t + 0.4);
+      wg.gain.setValueAtTime(0.0001, t + 0.05);
+      wg.gain.exponentialRampToValueAtTime(0.14, t + 0.1);
+      wg.gain.exponentialRampToValueAtTime(0.0001, t + 0.45);
+      w.connect(wg); wg.connect(master);
+      w.start(t + 0.05); w.stop(t + 0.5);
+
+      // fanfarra
+      const lp = ctx.createBiquadFilter();
+      lp.type = 'lowpass'; lp.frequency.value = 2800;
+      lp.connect(master);
+      const notas = [
+        {f: 392.00, t: 0.00, d: 0.12},
+        {f: 392.00, t: 0.14, d: 0.12},
+        {f: 392.00, t: 0.28, d: 0.12},
+        {f: 523.25, t: 0.42, d: 0.35},
+        {f: 659.25, t: 0.80, d: 0.14},
+        {f: 783.99, t: 0.96, d: 0.14},
+        {f: 1046.5, t: 1.12, d: 0.80}
+      ];
+      notas.forEach(n => {
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        const ti = t + 0.1 + n.t;
+        o.type = 'sawtooth'; o.frequency.value = n.f;
+        g.gain.setValueAtTime(0.0001, ti);
+        g.gain.exponentialRampToValueAtTime(0.16, ti + 0.02);
+        g.gain.setValueAtTime(0.16, ti + Math.max(0.03, n.d - 0.04));
+        g.gain.exponentialRampToValueAtTime(0.0001, ti + n.d + 0.12);
+        o.connect(g); g.connect(lp);
+        o.start(ti); o.stop(ti + n.d + 0.16);
+      });
+
+      // acorde final brilhante
+      [523.25, 659.25, 783.99, 1046.5].forEach(f => {
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        const ti = t + 1.22;
+        o.type = 'square'; o.frequency.value = f;
+        g.gain.setValueAtTime(0.0001, ti);
+        g.gain.exponentialRampToValueAtTime(0.05, ti + 0.03);
+        g.gain.exponentialRampToValueAtTime(0.0001, ti + 1.0);
+        o.connect(g); g.connect(lp);
+        o.start(ti); o.stop(ti + 1.05);
+      });
+
+      // brilhos
+      [1568, 1976, 2349, 2637, 3136, 2637, 3136, 3951].forEach((f, i) => {
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        const ti = t + 1.15 + i * 0.09;
+        o.type = 'sine'; o.frequency.value = f;
+        g.gain.setValueAtTime(0.0001, ti);
+        g.gain.exponentialRampToValueAtTime(0.08, ti + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001, ti + 0.3);
+        o.connect(g); g.connect(master);
+        o.start(ti); o.stop(ti + 0.32);
+      });
+    }
+
+    return { suspense, tick, reveal: surpresa, setLigado, get ligado(){ return ligado; } };
+  })();
+
+  function erro(t){ el.msg.textContent = t; }
+
+  function lerConfig(){
+    const inicio = Number(el.inicio.value);
+    const fim = Number(el.fim.value);
+    const qtd = Number(el.qtd.value);
+    if (![inicio, fim, qtd].every(Number.isInteger)) return erro('Use apenas números inteiros.'), null;
+    if (inicio > fim) return erro('O número inicial deve ser menor ou igual ao final.'), null;
+    const faixa = fim - inicio + 1;
+    if (faixa > 1000) return erro('O intervalo pode ter no máximo 1000 números.'), null;
+    if (qtd < 1 || qtd > faixa) return erro('A quantidade deve ficar entre 1 e ' + faixa + '.'), null;
+    erro('');
+    return { inicio, fim, qtd };
+  }
+
+  function configurar(pedirConfirmacao){
+    if (ocupado) return;
+    const c = lerConfig();
+    if (!c) return;
+    if (pedirConfirmacao && sorteados.length > 0 &&
+        !confirm('Deseja apagar o sorteio atual e aplicar a nova configuração?')) return;
+
+    pool = [];
+    for (let i = c.inicio; i <= c.fim; i++) pool.push(i);
+    sorteados = [];
+    totalSorteios = c.qtd;
+
+    construirGrade(c.inicio, c.fim);
+    el.resultado.className = 'numero';
+    el.resultado.textContent = '--';
+    el.timer.textContent = '';
+    el.ring.style.strokeDashoffset = CIRC;
+    el.status.className = 'status';
+    el.status.textContent = 'Aguardando sorteio';
+    el.btnSortear.disabled = false;
+    atualizarUI();
+  }
+
+  function construirGrade(a, b){
+    el.grade.innerHTML = '';
+    const frag = document.createDocumentFragment();
+    for (let i = a; i <= b; i++){
+      const d = document.createElement('div');
+      d.className = 'num-item';
+      d.id = 'n-' + i;
+      d.textContent = i;
+      frag.appendChild(d);
+    }
+    el.grade.appendChild(frag);
+  }
+
+  function atualizarUI(){
+    el.contador.textContent = sorteados.length;
+    el.total.textContent = totalSorteios;
+    el.barra.style.width = (sorteados.length / totalSorteios * 100) + '%';
+
+    if (sorteados.length === 0){
+      el.historico.innerHTML = '<span class="vazio">Nenhum número sorteado ainda</span>';
+    } else {
+      el.historico.innerHTML = '';
+      sorteados.forEach((n, i) => {
+        const c = document.createElement('span');
+        const pre = (i === 0 && n === FIXO);
+        c.className = 'chip' + (pre ? ' fixo' : '');
+        c.innerHTML = '<b>' + (i + 1) + 'º</b>' + n + (pre ? '<small>pré-definido</small>' : '');
+        el.historico.appendChild(c);
+      });
+    }
+  }
+
+  function sortear(){
+    if (ocupado) return;
+    if (sorteados.length >= totalSorteios) return;
+    if (pool.length === 0) return;
+
+    ocupado = true;
+    el.btnSortear.disabled = true;
+    el.btnReiniciar.disabled = true;
+    el.btnConfig.disabled = true;
+
+    // simulação: o 1º sorteio usa o número pré-definido (se estiver no intervalo); os demais são aleatórios
+    const idxFinal = (sorteados.length === 0 && pool.includes(FIXO))
+      ? pool.indexOf(FIXO)
+      : rand(pool.length);
+    const final = pool[idxFinal];
+
+    el.status.className = 'status on';
+    el.status.textContent = 'Sorteando...';
+    audio.suspense(DURACAO / 1000);
+    el.spin.classList.add('fast');
+    el.ball.classList.add('shake');
+    el.resultado.className = 'numero';
+
+    const inicio = performance.now();
+    let ultimo = 0, ultimoVisto = null, celulaAnterior = null;
+
+    function passo(agora){
+      const t = agora - inicio;
+
+      if (t >= DURACAO){
+        finalizar(idxFinal, final);
+        return;
+      }
+
+      // anel de progresso + contagem regressiva
+      el.ring.style.strokeDashoffset = CIRC * (1 - t / DURACAO);
+      el.timer.textContent = '00:0' + Math.ceil((DURACAO - t) / 1000);
+
+      // troca de números desacelerando ao longo dos 5 segundos
+      const intervalo = 40 + 380 * Math.pow(t / DURACAO, 3);
+      if (agora - ultimo >= intervalo){
+        ultimo = agora;
+        let v;
+        do { v = pool[rand(pool.length)]; } while (pool.length > 1 && v === ultimoVisto);
+        ultimoVisto = v;
+        audio.tick();
+
+        el.resultado.textContent = v;
+        el.resultado.classList.remove('tick');
+        void el.resultado.offsetWidth;
+        el.resultado.classList.add('tick');
+
+        if (celulaAnterior) celulaAnterior.classList.remove('scan');
+        const cel = $('n-' + v);
+        if (cel && !cel.classList.contains('sorteado')){
+          cel.classList.add('scan');
+          celulaAnterior = cel;
+        }
+      }
+      requestAnimationFrame(passo);
+    }
+    requestAnimationFrame(passo);
+  }
+
+  function finalizar(idx, valor){
+    document.querySelectorAll('.num-item.scan').forEach(c => c.classList.remove('scan'));
+
+    pool.splice(idx, 1);
+    sorteados.push(valor);
+
+    el.ring.style.strokeDashoffset = 0;
+    el.timer.textContent = '';
+    el.spin.classList.remove('fast');
+    el.ball.classList.remove('shake');
+
+    el.resultado.textContent = valor;
+    el.resultado.className = 'numero final';
+
+    const cel = $('n-' + valor);
+    if (cel) cel.classList.add('sorteado');
+
+    explosao();
+    audio.reveal();
+    atualizarUI();
+
+    const acabou = sorteados.length >= totalSorteios;
+    el.status.className = 'status';
+    el.status.textContent = acabou ? '🏁 Sorteio finalizado!' : '🎉 Número sorteado!';
+
+    ocupado = false;
+    el.btnReiniciar.disabled = false;
+    el.btnConfig.disabled = false;
+    el.btnSortear.disabled = acabou;
+  }
+
+  function reiniciar(){
+    if (ocupado) return;
+    if (sorteados.length > 0 && !confirm('Deseja reiniciar todo o sorteio?')) return;
+    configurar(false);
+  }
+
+  el.btnSortear.addEventListener('click', sortear);
+  el.btnReiniciar.addEventListener('click', reiniciar);
+  el.btnConfig.addEventListener('click', () => configurar(true));
+  $('btnSom').addEventListener('click', e => {
+    const novo = !audio.ligado;
+    audio.setLigado(novo);
+    e.currentTarget.classList.toggle('off', !novo);
+    e.currentTarget.textContent = novo ? '🔊 Som: ligado' : '🔇 Som: desligado';
+  });
+
+  /* ---------- BALÕES FLUTUANDO ---------- */
+  (function baloes(){
+    const cores = ['#ff4f9a','#ffd23f','#22b8ff','#2ed67a','#7b4dff','#ff7a1a'];
+    const qtd = innerWidth < 640 ? 8 : 14;
+    for (let i = 0; i < qtd; i++){
+      const b = document.createElement('div');
+      b.className = 'balao';
+      b.style.left = (Math.random() * 96) + 'vw';
+      b.style.setProperty('--s', (46 + Math.random() * 44) + 'px');
+      b.style.setProperty('--c', cores[i % cores.length]);
+      b.style.setProperty('--d', (14 + Math.random() * 14) + 's');
+      b.style.setProperty('--dl', (-Math.random() * 20) + 's');
+      document.body.appendChild(b);
+    }
+  })();
+
+  /* ---------- CONFETES (fundo contínuo + explosão na revelação) ---------- */
+  const cv = $('bg'), cx = cv.getContext('2d');
+  let W, H, DPR = Math.min(window.devicePixelRatio || 1, 2);
+  let confete = [], burst = [];
+  const CORES = ['#ff4f9a','#ffd23f','#22b8ff','#2ed67a','#7b4dff','#ff7a1a','#ffffff'];
+
+  function novoConfete(topo){
+    return {
+      x: Math.random() * W,
+      y: topo ? -20 : Math.random() * H,
+      w: Math.random() * 8 + 6, h: Math.random() * 12 + 8,
+      rot: Math.random() * 6.28, vr: (Math.random() - .5) * .15,
+      vy: Math.random() * 1.4 + .8, vx: (Math.random() - .5) * .8,
+      sw: Math.random() * 6.28,
+      c: CORES[Math.floor(Math.random() * CORES.length)]
+    };
+  }
+
+  function resize(){
+    W = innerWidth; H = innerHeight;
+    cv.width = W * DPR; cv.height = H * DPR;
+    cv.style.width = W + 'px'; cv.style.height = H + 'px';
+    cx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    const n = Math.min(60, Math.floor(W / 20));
+    confete = Array.from({length: n}, () => novoConfete(false));
+  }
+  addEventListener('resize', resize);
+  resize();
+
+  function explosao(){
+    const box = document.querySelector('.ring-box').getBoundingClientRect();
+    const ox = box.left + box.width / 2, oy = box.top + box.height / 2;
+    for (let i = 0; i < 140; i++){
+      const a = Math.random() * Math.PI * 2, v = Math.random() * 11 + 4;
+      burst.push({
+        x: ox, y: oy, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 4,
+        w: Math.random() * 9 + 5, h: Math.random() * 14 + 7,
+        rot: Math.random() * 6.28, vr: (Math.random() - .5) * .4,
+        life: 1, c: CORES[i % CORES.length]
+      });
+    }
+  }
+
+  function desenhar(p, alpha){
+    cx.save();
+    cx.globalAlpha = alpha;
+    cx.translate(p.x, p.y);
+    cx.rotate(p.rot);
+    cx.fillStyle = p.c;
+    cx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+    cx.restore();
+  }
+
+  function loop(){
+    cx.clearRect(0, 0, W, H);
+
+    for (let i = 0; i < confete.length; i++){
+      const p = confete[i];
+      p.sw += .03;
+      p.x += p.vx + Math.sin(p.sw) * .6;
+      p.y += p.vy;
+      p.rot += p.vr;
+      if (p.y > H + 20) confete[i] = novoConfete(true);
+      desenhar(p, .9);
+    }
+
+    for (let i = burst.length - 1; i >= 0; i--){
+      const b = burst[i];
+      b.x += b.vx; b.y += b.vy; b.vy += .22; b.vx *= .985;
+      b.rot += b.vr; b.life -= .011;
+      if (b.life <= 0){ burst.splice(i, 1); continue; }
+      desenhar(b, Math.min(1, b.life * 1.6));
+    }
+
+    requestAnimationFrame(loop);
+  }
+  loop();
+
+  configurar(false);
+})();
+</script>
+
+</body>
+</html>
